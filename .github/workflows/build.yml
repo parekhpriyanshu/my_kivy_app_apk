@@ -1,45 +1,46 @@
-name: Build Kivy APK
+name: Build APK with Buildozer
 
 on:
   push:
     branches:
-      - main
+      - main   # or master, depending on your default branch
   pull_request:
     branches:
-      - main
+      - main   # or master
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment on GitHub Actions
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Python
+    - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: '3.12.8'  # Use the version that fits your app requirements
 
-    - name: Install dependencies
+    - name: Install Buildozer and Dependencies
       run: |
-        sudo apt update
-        sudo apt install -y openjdk-8-jdk
-        sudo apt install -y python3-pip
+        sudo apt-get update
+        sudo apt-get install -y python3-pip python3-dev build-essential libssl-dev libffi-dev liblzma-dev zlib1g-dev
+        sudo apt-get install -y libsdl2-dev libfreetype6-dev libjpeg-dev liblcms2-dev
         pip install buildozer
 
-    - name: Install Buildozer dependencies
+    - name: Install Android dependencies
       run: |
-        sudo apt install -y libssl-dev libffi-dev python3-dev
-        sudo apt install -y liblzma-dev zlib1g-dev
-        sudo apt install -y libsdl2-dev libfreetype6-dev libjpeg-dev liblcms2-dev
+        sudo apt-get install -y openjdk-8-jdk
+        sudo apt-get install -y libncurses5 libstdc++6 lib32z1 lib32ncurses5
+        sudo apt-get install -y lib32stdc++6
+        pip install cython
 
     - name: Build APK
       run: |
-        buildozer -v android debug
-    
-    - name: Upload APK to Artifacts
+        buildozer android debug
+
+    - name: Upload APK as Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: my_kivy_app_apk
-        path: bin/*.apk
+        name: my_kivy_app
+        path: bin/my_kivy_app-1.0.0-debug.apk  # Path to the generated APK
